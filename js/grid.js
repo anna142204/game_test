@@ -29,7 +29,6 @@ export function isGridFull() {
     return true;
 }
 
-
 // Checks if a grid position is valid
 export function isValidGridPosition(row, col) {
     return row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE;

@@ -8,13 +8,14 @@ import { GAME_KEY } from "./constants.js";
 
 export function setupCommonUI(scene, isInfinityMode = false) {
     const updateUI = (width = scene.scale.width, height = scene.scale.height) => {
+
         // Clear existing UI elements (if any)
         scene.children.removeAll();
 
         // Calculate scale factor
         let scaleFactor;
         if (width <= 980) {
-            scaleFactor = 1,8;
+            scaleFactor = 2;
         } else {
             scaleFactor = 1;
         }
@@ -23,11 +24,10 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         const centerY = height / 2;
 
         GameState.scaleFactor = scaleFactor;
-        // Définir la taille des unités mise à l'échelle
+
         const scaledUnitSize = GameState.unitSize * scaleFactor;
 
-        // Calcul de la position de la grille avec le facteur d'échelle
-        const gridSizePixels = scaledUnitSize * 3; // Pour une grille 3x3
+        const gridSizePixels = scaledUnitSize * 3;
         GameState.gridStartX = centerX - (gridSizePixels / 2);
         GameState.gridStartY = centerY - (gridSizePixels / 2) + 45 * scaleFactor;
 
@@ -35,7 +35,7 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         // Draw the grid
         drawGrid(scene);
 
-// Titre du jeu
+        // Title
         scene.add.text(centerX, centerY - 300 * scaleFactor, `${GAME_KEY}`, {
             font: `${70 * scaleFactor}px customFont`,
             fill: '#fff',

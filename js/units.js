@@ -13,7 +13,7 @@ export function purchaseUnit(scene) {
             callbackScope: scene,
             args: [scene],
             loop: true
-        });        
+        });
     }
     const emptySlot = findEmptySlot();
     if (!emptySlot) return;
@@ -28,49 +28,49 @@ export function purchaseUnit(scene) {
 export function addNewUnit(scene) {
     const emptySlot = findEmptySlot();
     if (!emptySlot) return;
-    
+
     const { row, col } = emptySlot;
     const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
-    
+
     const x = GameState.gridStartX + col * scaledUnitSize + scaledUnitSize / 2;
     const y = GameState.gridStartY + row * scaledUnitSize + scaledUnitSize / 2;
-    
+
     let unitLevel = 1;
     if (GameState.actualMaxLevel >= 4) {
         unitLevel = Phaser.Math.Between(1, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
     }
-    
+
     createUnitAt(scene, row, col, x, y, unitLevel);
 }
 
 function createUnitAt(scene, row, col, x, y, level) {
     const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
     const unitColor = getUnitColor(level);
-    
+
     const unit = scene.add.image(x, y, 'unit')
         .setDisplaySize(scaledUnitSize, scaledUnitSize)
         .setTint(unitColor)
         .setDepth(3);
-    
+
     const fontSize = 20 * GameState.scaleFactor;
     const text = scene.add.text(x, y, level.toString(), {
         font: `${fontSize}px customFont`,
         fill: "#fff"
     }).setOrigin(0.5).setDepth(4);
-    
+
     unit.level = level;
     unit.row = row;
     unit.col = col;
     unit.text = text;
     GameState.grid[row][col] = unit;
-    
+
     unit.setInteractive();
     unit.on('pointerdown', () => {
         if (GameState.gameActive) {
             tryFusion(unit);
         }
     });
-    
+
     scene.tweens.add({
         targets: unit,
         scale: 1.2,
@@ -119,7 +119,6 @@ export function findEmptySlot() {
     return null;
 }
 
-
 export function fuseUnits(unit1, unit2) {
     const fusionLevel = unit1.level + 1;
     const reward = fusionLevel * 10;
@@ -149,9 +148,10 @@ export function fuseUnits(unit1, unit2) {
     const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
     const x = GameState.gridStartX + unit1.col * scaledUnitSize + scaledUnitSize / 2;
     const y = GameState.gridStartY + unit1.row * scaledUnitSize + scaledUnitSize / 2;
-    
+
     createUnitAt(scene, unit1.row, unit1.col, x, y, fusionLevel);
 }
+
 export function isGameOver() {
     if (!hasValidMoves() && isGridFull()) {
         console.log("GameState.currentScene:", GameState.currentScene);
