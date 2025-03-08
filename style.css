@@ -1,3 +1,9 @@
+@font-face {
+    font-family: 'SourGummy';
+    src: url('assets/SourGummy-VariableFont_wdth,wght.ttf') format('truetype');
+}
+
+
 html, body {
     margin: 0;
     padding: 0;

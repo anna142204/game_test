@@ -1,4 +1,5 @@
 // js/constants.js
+
 export const GRID_SIZE = 3;
 
 export const COLORS = {
@@ -16,3 +17,9 @@ export const COLORS = {
 };
 
 export const GAME_KEY = "LevelCats";
+
+export const fontStyle = {
+    fontFamily: 'SourGummy',
+    fontSize: '24px',
+    fill: '#FFFFFF'
+};

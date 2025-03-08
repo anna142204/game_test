@@ -19,6 +19,7 @@ export const GameState = {
     actualMaxLevel: 1,
     timerStarted: false,
     currentScene: null,
+    scaleFactor:1,
 
     reset() {
         this.grid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));

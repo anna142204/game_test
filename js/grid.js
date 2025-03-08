@@ -3,15 +3,21 @@ import { GameState } from "./GameState.js";
 import { GRID_SIZE } from "./constants.js";
 
 export function drawGrid(scene) {
+   
+    const scaleFactor = GameState.scaleFactor;
+    const scaledUnitSize = GameState.unitSize * scaleFactor;
+    
     for (let row = 0; row < GRID_SIZE; row++) {
         for (let col = 0; col < GRID_SIZE; col++) {
-            const x = GameState.gridStartX + col * GameState.unitSize + GameState.unitSize / 2;
-            const y = GameState.gridStartY + row * GameState.unitSize + GameState.unitSize / 2;
-            scene.add.image(x, y, 'gridCell').setDisplaySize(GameState.unitSize, GameState.unitSize).setDepth(2);
+            const x = GameState.gridStartX + (col * scaledUnitSize) + (scaledUnitSize / 2);
+            const y = GameState.gridStartY + (row * scaledUnitSize) + (scaledUnitSize / 2);
+            
+            scene.add.image(x, y, 'gridCell')
+                .setDisplaySize(scaledUnitSize, scaledUnitSize)
+                .setDepth(2);
         }
     }
 }
-
 export function isGridFull() {
     for (let row = 0; row < GRID_SIZE; row++) {
         for (let col = 0; col < GRID_SIZE; col++) {
@@ -20,7 +26,6 @@ export function isGridFull() {
             }
         }
     }
-    console.log("la grille est pleine")
     return true;
 }
 

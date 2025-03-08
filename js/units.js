@@ -5,7 +5,7 @@ import { COLORS, GRID_SIZE } from "./constants.js";
 import { isValidGridPosition, isGridFull } from "./grid.js";
 
 export function purchaseUnit(scene) {
-    if (!GameState.timerStarted) {
+    if (!GameState.timerStarted && scene.scene.key === 'Game') {
         GameState.timerStarted = true;
         GameState.timer = scene.time.addEvent({
             delay: 1000,
@@ -28,35 +28,49 @@ export function purchaseUnit(scene) {
 export function addNewUnit(scene) {
     const emptySlot = findEmptySlot();
     if (!emptySlot) return;
+    
     const { row, col } = emptySlot;
-    const x = GameState.gridStartX + col * GameState.unitSize + GameState.unitSize / 2;
-    const y = GameState.gridStartY + row * GameState.unitSize + GameState.unitSize / 2;
+    const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
+    
+    const x = GameState.gridStartX + col * scaledUnitSize + scaledUnitSize / 2;
+    const y = GameState.gridStartY + row * scaledUnitSize + scaledUnitSize / 2;
+    
     let unitLevel = 1;
     if (GameState.actualMaxLevel >= 4) {
         unitLevel = Phaser.Math.Between(1, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
     }
+    
     createUnitAt(scene, row, col, x, y, unitLevel);
 }
 
-// Creates a unit at a specific grid position
 function createUnitAt(scene, row, col, x, y, level) {
+    const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
     const unitColor = getUnitColor(level);
-    const unit = scene.add.image(x, y, 'unit').setDisplaySize(GameState.unitSize, GameState.unitSize).setTint(unitColor).setDepth(3);
+    
+    const unit = scene.add.image(x, y, 'unit')
+        .setDisplaySize(scaledUnitSize, scaledUnitSize)
+        .setTint(unitColor)
+        .setDepth(3);
+    
+    const fontSize = 20 * GameState.scaleFactor;
     const text = scene.add.text(x, y, level.toString(), {
-        font: "20px customFont",
+        font: `${fontSize}px customFont`,
         fill: "#fff"
     }).setOrigin(0.5).setDepth(4);
+    
     unit.level = level;
     unit.row = row;
     unit.col = col;
     unit.text = text;
     GameState.grid[row][col] = unit;
+    
     unit.setInteractive();
     unit.on('pointerdown', () => {
         if (GameState.gameActive) {
             tryFusion(unit);
         }
     });
+    
     scene.tweens.add({
         targets: unit,
         scale: 1.2,
@@ -132,10 +146,11 @@ export function fuseUnits(unit1, unit2) {
         return;
     }
 
-    const x = GameState.gridStartX + unit1.col * GameState.unitSize + GameState.unitSize / 2;
-    const y = GameState.gridStartY + unit1.row * GameState.unitSize + GameState.unitSize / 2;
+    const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
+    const x = GameState.gridStartX + unit1.col * scaledUnitSize + scaledUnitSize / 2;
+    const y = GameState.gridStartY + unit1.row * scaledUnitSize + scaledUnitSize / 2;
+    
     createUnitAt(scene, unit1.row, unit1.col, x, y, fusionLevel);
-
 }
 export function isGameOver() {
     if (!hasValidMoves() && isGridFull()) {

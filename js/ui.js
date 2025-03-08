@@ -7,7 +7,7 @@ export function updateCoinsDisplay() {
 }
 
 export function updateTimer(scene) {
-    if (!GameState.gameActive) return;
+    if (!GameState.gameActive || scene.scene.key === 'Infini') return;
     GameState.timeLeft--;
     GameState.timeText.setText(`Time: ${GameState.timeLeft}s`);
     if (GameState.timeLeft <= 0) {
@@ -15,8 +15,9 @@ export function updateTimer(scene) {
     }
 }
 
-export function createPanel(scene, title, titleColor) {
+export function createPanel(scene, title, titleColor, scaleFactor) {
     const panel = scene.add.group();
+    
     const overlay = scene.add.rectangle(
         scene.cameras.main.centerX,
         scene.cameras.main.centerY,
@@ -24,59 +25,60 @@ export function createPanel(scene, title, titleColor) {
         scene.cameras.main.height,
         0x000000, 0.7
     ).setDepth(10);
-
+    
     const titleText = scene.add.text(
         scene.cameras.main.centerX,
-        scene.cameras.main.centerY - 100,
+        scene.cameras.main.centerY - 100 * scaleFactor,
         title,
         {
-            font: '80px customFont',
+            font: `${80 * scaleFactor}px customFont`,
             fill: titleColor,
             stroke: '#000000',
-            strokeThickness: 8
+            strokeThickness: 8 * scaleFactor
         }
     ).setOrigin(0.5).setDepth(10);
-
+    
     const finalScoreText = scene.add.text(
         scene.cameras.main.centerX,
-        scene.cameras.main.centerY-20,
+        scene.cameras.main.centerY - 20 * scaleFactor,
         'Score: 0',
         {
-            font: '40px customFont',
+            font: `${40 * scaleFactor}px customFont`,
             fill: '#FFFFFF'
         }
     ).setOrigin(0.5).setDepth(10);
-
+    
     const highScoreText = scene.add.text(
         scene.cameras.main.centerX,
-        scene.cameras.main.centerY+50,
+        scene.cameras.main.centerY + 50 * scaleFactor,
         'Highscore: 0',
         {
-            font: '40px customFont',
+            font: `${40 * scaleFactor}px customFont`,
             fill: '#FFFFFF'
         }
     ).setOrigin(0.5).setDepth(10);
-
+    
     const replayButton = scene.add.rectangle(
         scene.cameras.main.centerX,
-        scene.cameras.main.centerY + 130,
-        200, 60, 0x00FF00, 0.8
-    ).setStrokeStyle(3, 0x000000).setInteractive().setDepth(10);
-
+        scene.cameras.main.centerY + 130 * scaleFactor,
+        200 * scaleFactor, 60 * scaleFactor, 
+        0x00FF00, 0.8
+    ).setStrokeStyle(3 * scaleFactor, 0x000000).setInteractive().setDepth(10);
+    
     const replayText = scene.add.text(
         scene.cameras.main.centerX,
-        scene.cameras.main.centerY + 130,
+        scene.cameras.main.centerY + 130 * scaleFactor,
         'REJOUER',
         {
-            font: '30px customFont',
+            font: `${30 * scaleFactor}px customFont`,
             fill: '#000000'
         }
     ).setOrigin(0.5).setDepth(10);
-
+    
     replayButton.on('pointerdown', () => {
         resetGame(scene);
     });
-
+    
     panel.add(overlay);
     panel.add(titleText);
     panel.add(finalScoreText);
@@ -86,10 +88,9 @@ export function createPanel(scene, title, titleColor) {
     panel.finalScoreText = finalScoreText;
     panel.highScoreText = highScoreText;
     panel.setVisible(false);
-
+    
     return panel;
 }
-
 export function showPanel(scene, panel) {
 const HIGH_SCORE_KEY = `${GAME_KEY}_highScore`;
 
