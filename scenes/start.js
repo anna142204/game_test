@@ -20,34 +20,37 @@ export class Start extends Phaser.Scene {
         });
     }
 
-    updateUI(width) {
-        const height = window.innerHeight;
-        const centerX = this.cameras.main.centerX;
-        const centerY = this.cameras.main.centerY;
+  
+        updateUI(width) {
+            const height = window.innerHeight;
+            const centerX = this.cameras.main.centerX;
+            const centerY = this.cameras.main.centerY;
+        
+            let scaleFactor;
+            if (width < 990) { 
+                scaleFactor = 1.5; 
+            } else {
+                scaleFactor = 1.1;  
+            }
+        
+            // this.cameras.main.setZoom(scaleFactor);
+            if (this.uiGroup) {
+                this.uiGroup.clear(true, true);
+            } else {
+                this.uiGroup = this.add.group();
+            }
 
-        // Définir le facteur de mise à l'échelle basé sur la largeur de l'écran
-        let scaleFactor;
-        if (width < 768) {
-            scaleFactor = 1.5;
-        } else {
-            scaleFactor = 1;
-        }
-console.log(scaleFactor)
-        // Appliquer la mise à l'échelle
-        this.cameras.main.setZoom(scaleFactor);
-
-        // Titre du jeu
-        this.add.text(centerX, centerY - 130 * scaleFactor, `${GAME_KEY}`, {
+        const title = this.add.text(centerX, centerY - 130 * scaleFactor, `${GAME_KEY}`, {
             font: `${80 * scaleFactor}px customFont`,
             fill: '#ffffff',
             stroke: '#000000',
             strokeThickness: 6 * scaleFactor
         }).setOrigin(0.5);
+        this.uiGroup.add(title);
 
-        // Image principale
-        this.add.image(centerX, centerY + 10 * scaleFactor, 'unit').setScale(scaleFactor);
+        const logo = this.add.image(centerX, centerY + 10 * scaleFactor, 'unit').setScale(scaleFactor);
+        this.uiGroup.add(logo);
 
-        // Bouton "Infinity mode"
         const infiniModeBtn = this.add.rectangle(centerX - 100 * scaleFactor, centerY + 150 * scaleFactor, 180 * scaleFactor, 60 * scaleFactor, 0xfffd77, 0.8)
             .setStrokeStyle(3 * scaleFactor, 0x000000)
             .setInteractive()
@@ -55,11 +58,12 @@ console.log(scaleFactor)
             .on('pointerdown', () => {
                 this.scene.start('Infini');
             });
-
-        this.add.text(centerX - 100 * scaleFactor, centerY + 150 * scaleFactor, `Infinity mode`, {
+            this.uiGroup.add(infiniModeBtn);
+        const infiniModeBtnText = this.add.text(centerX - 100 * scaleFactor, centerY + 150 * scaleFactor, `Infinity mode`, {
             font: `${24 * scaleFactor}px customFont`,
             fill: '#000'
         }).setOrigin(0.5).setDepth(3);
+        this.uiGroup.add(infiniModeBtnText);
 
         // Bouton "Level mode"
         const levelModeBtn = this.add.rectangle(centerX + 100 * scaleFactor, centerY + 150 * scaleFactor, 180 * scaleFactor, 60 * scaleFactor, 0xfffd77, 0.8)
@@ -69,16 +73,19 @@ console.log(scaleFactor)
             .on('pointerdown', () => {
                 this.scene.start('Game');
             });
+            this.uiGroup.add(levelModeBtn);
 
-        this.add.text(centerX + 100 * scaleFactor, centerY + 150 * scaleFactor, `Level mode`, {
+        const levelModeBtnText = this.add.text(centerX + 100 * scaleFactor, centerY + 150 * scaleFactor, `Level mode`, {
             font: `${24 * scaleFactor}px customFont`,
             fill: '#000'
         }).setOrigin(0.5).setDepth(3);
+        this.uiGroup.add(levelModeBtnText);
 
         // Texte "made by Spilana"
-        this.add.text(centerX, centerY * 1.8, "made by Spilana", {
+        const signature = this.add.text(centerX, centerY * 1.8, "made by Spilana", {
             fontSize: `${16 * scaleFactor}px`,
             fill: '#ffffff',
         }).setOrigin(0.5);
+        this.uiGroup.add(signature);
     }
 }

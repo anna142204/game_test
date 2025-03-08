@@ -7,12 +7,9 @@ let game;
 
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    pixelArt: false, 
     scale: {
-        mode: Phaser.Scale.RESIZE, 
-        autoCenter: Phaser.Scale.CENTER_BOTH, 
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH
     },
     backgroundColor: "#292039",
     scene: [Start, Game, Infini]
