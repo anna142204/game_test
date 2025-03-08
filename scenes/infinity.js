@@ -26,7 +26,9 @@ export class Infini extends Phaser.Scene {
         }
         GameState.timerStarted = false;
 
-        setupCommonUI(this, true);
+        this.time.delayedCall(100, () => {
+            setupCommonUI(this, true);
+        });
 
         if (!this.coinTimer) {
             this.coinTimer = this.time.addEvent({
@@ -35,7 +37,8 @@ export class Infini extends Phaser.Scene {
                 loop: true
             });
         }
-
+        GameState.gameOverPanel = createPanel(scene, 'GAME OVER', '#FF0000', scaleFactor);
+        GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
     }
 
     update() {}

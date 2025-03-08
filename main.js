@@ -7,20 +7,16 @@ let game;
 
 const config = {
     type: Phaser.AUTO,
-   // In your game config:
-scale: {
-    mode: Phaser.Scale.RESIZE,
-    parent: 'game-container', // ID of parent div
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 800, // Base width
-    height: 600 // Base height
-},
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        parent: 'game-container',
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 800,
+        height: 600
+    },
     backgroundColor: "#292039",
     scene: [Start, Game, Infini]
 };
-window.addEventListener("resize", () => {
-    game.scale.resize(window.innerWidth, window.innerHeight);
-});
 
 function init() {
     game = new Phaser.Game(config);

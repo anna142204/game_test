@@ -20,7 +20,9 @@ export class Game extends Phaser.Scene {
         GameState.reset();
         GameState.currentScene = this;
 
-        setupCommonUI(this, false);
+        this.time.delayedCall(100, () => {
+            setupCommonUI(this, false); 
+        });
 
         this.time.addEvent({
             delay: 1000,
@@ -35,7 +37,8 @@ export class Game extends Phaser.Scene {
                 loop: true
             });
         }
-        
+        GameState.gameOverPanel = createPanel(scene, 'GAME OVER', '#FF0000', scaleFactor);
+        GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
     }
 
     update() {}

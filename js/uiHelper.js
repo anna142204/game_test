@@ -8,7 +8,9 @@ import { GAME_KEY } from "./constants.js";
 
 export function setupCommonUI(scene, isInfinityMode = false) {
     const updateUI = (width = scene.scale.width, height = scene.scale.height) => {
-
+        console.log("Screen Width:", window.innerWidth);
+        console.log("Screen Height:", window.innerHeight);
+        console.log("Scale Factor:", GameState.scaleFactor);
         // Clear existing UI elements (if any)
         scene.children.removeAll();
 
@@ -19,7 +21,8 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         } else {
             scaleFactor = 1;
         }
-
+       
+        
         const centerX = width / 2;
         const centerY = height / 2;
 
@@ -132,9 +135,6 @@ export function setupCommonUI(scene, isInfinityMode = false) {
 
         updateButtonState();
 
-        // Create game over and win panels
-        GameState.gameOverPanel = createPanel(scene, 'GAME OVER', '#FF0000', scaleFactor);
-        GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
     };
 
     // Initialize the UI

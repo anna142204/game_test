@@ -17,9 +17,12 @@ export class Start extends Phaser.Scene {
         this.scale.on('resize', (gameSize) => {
             this.updateUI(gameSize.width, gameSize.height);
         });
+        console.log("Screen Width:", window.innerWidth);
+        console.log("Screen Height:", window.innerHeight);
     }
 
     updateUI(width = this.scale.width, height = this.scale.height) {
+
         const centerX = width / 2;
         const centerY = height / 2;
         
