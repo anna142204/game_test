@@ -24,7 +24,7 @@ export const GameState = {
     reset() {
         this.grid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
         this.coins = 500;
-        this.timeLeft = 5;
+        this.timeLeft = 210;
         this.gameActive = true;
         this.hiddenCoins = [];
         this.levelUpCost = 30;

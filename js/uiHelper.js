@@ -14,9 +14,9 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         // Calculate scale factor
         let scaleFactor;
         if (width <= 980) {
-            scaleFactor = 2.1;
+            scaleFactor = 1,8;
         } else {
-            scaleFactor = 1.1;
+            scaleFactor = 1;
         }
 
         const centerX = width / 2;
@@ -137,8 +137,10 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
     };
 
+    // Initialize the UI
     updateUI();
 
+    // Handle resizing
     scene.scale.on('resize', (gameSize) => {
         updateUI(gameSize.width, gameSize.height);
     });
