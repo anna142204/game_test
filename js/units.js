@@ -73,8 +73,8 @@ function createUnitAt(scene, row, col, x, y, level) {
 
     scene.tweens.add({
         targets: unit,
-        scale: 1.2,
-        duration: 200,
+        scale: 2,
+        duration: 100,
         yoyo: true
     });
 }

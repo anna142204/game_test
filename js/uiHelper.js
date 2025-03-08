@@ -2,7 +2,7 @@
 import { GameState } from "../js/GameState.js";
 import { drawGrid } from "../js/grid.js";
 import { purchaseUnit, findEmptySlot, isGameOver } from "../js/units.js";
-import { createPanel } from "../js/ui.js";
+
 import { GAME_KEY } from "./constants.js";
 
 

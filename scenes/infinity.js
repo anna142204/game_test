@@ -1,6 +1,7 @@
 import { GameState } from "../js/GameState.js";
-import { spawnHiddenCoin } from "../js/ui.js";
+import { spawnHiddenCoin, createPanel } from "../js/ui.js";
 import { setupCommonUI } from "../js/uiHelper.js";
+
 
 
 export class Infini extends Phaser.Scene {
@@ -37,8 +38,15 @@ export class Infini extends Phaser.Scene {
                 loop: true
             });
         }
-        GameState.gameOverPanel = createPanel(scene, 'GAME OVER', '#FF0000', scaleFactor);
-        GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
+        let width = this.scale.width;
+        let scaleFactor;
+        if (width <= 980) {
+            scaleFactor = 2;
+        } else {
+            scaleFactor = 1;
+        }
+        GameState.gameOverPanel = createPanel(this, 'GAME OVER', '#FF0000', scaleFactor);
+        GameState.winPanel = createPanel(this, 'YOU WIN!', '#00FF00', scaleFactor);
     }
 
     update() {}
