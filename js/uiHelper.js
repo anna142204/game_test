@@ -9,7 +9,7 @@ import { GAME_KEY } from "./constants.js";
 
 export function setupCommonUI(scene, isInfinityMode = false) {
     const updateUI = (width = scene.scale.width, height = scene.scale.height) => {
-      
+        GameState.updateGridSize();
         // Clear existing UI elements (if any)
         scene.children.removeAll();
      
@@ -30,8 +30,8 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         GameState.scaleFactor = scaleFactor;
 
         const scaledUnitSize = GameState.unitSize * scaleFactor;
+        const gridSizePixels = scaledUnitSize * GameState.grid_size;
 
-        const gridSizePixels = scaledUnitSize * 3;
         GameState.gridStartX = centerX - (gridSizePixels / 2);
         GameState.gridStartY = centerY - (gridSizePixels / 2) + 45 * scaleFactor;
 
@@ -40,7 +40,7 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         drawGrid(scene);
 
         // Title
-        scene.add.text(centerX, centerY - 300 * scaleFactor, `${GAME_KEY}`, {
+        scene.add.text(centerX, centerY - 330 * scaleFactor, `${GAME_KEY}`, {
             font: `${70 * scaleFactor}px customFont`,
             fill: '#fff',
             stroke: '#000000',
@@ -50,18 +50,18 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         });
 
         // Coin display
-        GameState.coinsText = scene.add.text(centerX, centerY - 230 * scaleFactor, `Coins: ${GameState.coins}`, {
+        GameState.coinsText = scene.add.text(centerX, centerY - 260 * scaleFactor, `Coins: ${GameState.coins}`, {
             font: `${30 * scaleFactor}px customFont`,
             fill: '#FFD700'
         }).setOrigin(0.5).setDepth(2);
 
-        scene.add.image(centerX - 95 * scaleFactor, centerY - 232 * scaleFactor, 'coin')
+        scene.add.image(centerX - 95 * scaleFactor, centerY - 260 * scaleFactor, 'coin')
             .setScale(0.6 * scaleFactor)
             .setDepth(1);
 
         // Timer display
         const timerText = isInfinityMode ? 'Time: ∞' : `Time: ${GameState.timeLeft}s`;
-        GameState.timeText = scene.add.text(centerX, centerY - 190 * scaleFactor, timerText, {
+        GameState.timeText = scene.add.text(centerX, centerY - 220 * scaleFactor, timerText, {
             font: `${24 * scaleFactor}px customFont`,
             fill: '#FFFFFF'
         }).setOrigin(0.5).setDepth(2);
@@ -69,7 +69,7 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         // Add unit button
         const addUnitButton = scene.add.rectangle(
             centerX,
-            centerY + 300 * scaleFactor,
+            centerY + 320 * scaleFactor,
             220 * scaleFactor,
             60 * scaleFactor,
             0xfffd77,
@@ -109,7 +109,7 @@ export function setupCommonUI(scene, isInfinityMode = false) {
                 });
             });
 
-        const buttonText = scene.add.text(centerX, centerY + 300 * scaleFactor, `Acheter | ${GameState.levelUpCost}$`, {
+        const buttonText = scene.add.text(centerX, centerY + 320 * scaleFactor, `Acheter | ${GameState.levelUpCost}$`, {
             font: `${24 * scaleFactor}px customFont`,
             fill: '#000'
         }).setOrigin(0.5).setDepth(3);

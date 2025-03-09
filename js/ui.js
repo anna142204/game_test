@@ -109,7 +109,7 @@ const HIGH_SCORE_KEY = `${GAME_KEY}_highScore`;
     panel.finalScoreText.setText(`Score: ${GameState.actualMaxLevel}`);
     panel.highScoreText.setText(`Highscore: ${highScore}`);
     panel.setVisible(true);
-    console.log("Panel après modification:", panel);
+
     scene.tweens.add({
         targets: panel.getChildren(),
         alpha: { from: 0, to: 1 },
@@ -132,7 +132,7 @@ export function spawnHiddenCoin(scene) {
         .setDepth(4);
     coin.on('pointerdown', () => {
         if (!GameState.gameActive) return;
-        scene.sound.play('coinSound');
+        // scene.sound.play('coinSound');
         GameState.coins += 50;
         updateCoinsDisplay();
         coin.destroy();

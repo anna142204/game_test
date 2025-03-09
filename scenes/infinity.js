@@ -1,7 +1,7 @@
 import { GameState } from "../js/GameState.js";
 import { spawnHiddenCoin, createPanel } from "../js/ui.js";
 import { setupCommonUI } from "../js/uiHelper.js";
-
+import { drawGrid } from "../js/grid.js";
 
 
 export class Infini extends Phaser.Scene {
@@ -47,6 +47,8 @@ export class Infini extends Phaser.Scene {
         }
   
     }
-
-    update() {}
+    update() {
+        GameState.updateGridSize(); // Vérifie si la grille doit grandir
+    }
+    
 }

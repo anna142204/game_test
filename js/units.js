@@ -1,7 +1,7 @@
 // js/units.js
 import { GameState } from "./GameState.js";
 import { updateCoinsDisplay, showPanel, updateTimer } from "./ui.js";
-import { COLORS, GRID_SIZE } from "./constants.js";
+import { COLORS } from "./constants.js";
 import { isValidGridPosition, isGridFull } from "./grid.js";
 
 export function purchaseUnit(scene) {
@@ -25,6 +25,22 @@ export function purchaseUnit(scene) {
     isGameOver();
 }
 
+export function getLowestUnitOnGrid() {
+    let minLevel = GameState.actualMaxLevel;
+
+    for (let row = 0; row < GameState.grid_size; row++) {
+        for (let col = 0; col < GameState.grid_size; col++) {
+            if (GameState.grid[row] && GameState.grid[row][col] !== undefined) {
+                const unit = GameState.grid[row][col];
+                if (unit && unit.level < minLevel) {
+                    minLevel = unit.level;
+                }
+            }
+        }
+    }
+    return minLevel;
+}
+
 export function addNewUnit(scene) {
     const emptySlot = findEmptySlot();
     if (!emptySlot) return;
@@ -35,10 +51,12 @@ export function addNewUnit(scene) {
     const x = GameState.gridStartX + col * scaledUnitSize + scaledUnitSize / 2;
     const y = GameState.gridStartY + row * scaledUnitSize + scaledUnitSize / 2;
 
-    let unitLevel = 1;
-    if (GameState.actualMaxLevel >= 4) {
-        unitLevel = Phaser.Math.Between(1, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
-    }
+    let minGridLevel = getLowestUnitOnGrid();
+    let theoreticalMinLevel = Math.floor(GameState.actualMaxLevel / 5) + 1;
+    let minLevel = Math.min(theoreticalMinLevel, minGridLevel);
+    let maxLevel = Math.min(GameState.actualMaxLevel - 1, minLevel + 2);
+
+    let unitLevel = Phaser.Math.Between(minLevel, maxLevel);
 
     createUnitAt(scene, row, col, x, y, unitLevel);
 }
@@ -46,13 +64,16 @@ export function addNewUnit(scene) {
 function createUnitAt(scene, row, col, x, y, level) {
     const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
     const unitColor = getUnitColor(level);
-
+    
+    const isMobile = scene.scale.width <= 980;
+    const baseSize = GameState.unitSize;
+    
     const unit = scene.add.image(x, y, 'unit')
-        .setDisplaySize(scaledUnitSize, scaledUnitSize)
+        .setDisplaySize(baseSize * GameState.scaleFactor, baseSize * GameState.scaleFactor)
         .setTint(unitColor)
         .setDepth(3);
 
-    const fontSize = 20 * GameState.scaleFactor;
+    const fontSize = (isMobile ? 28 : 20) * GameState.scaleFactor;
     const text = scene.add.text(x, y, level.toString(), {
         font: `${fontSize}px customFont`,
         fill: "#fff"
@@ -71,20 +92,24 @@ function createUnitAt(scene, row, col, x, y, level) {
         }
     });
 
+    const tweenScale = GameState.scaleFactor * 1.2;
     scene.tweens.add({
         targets: unit,
-        scale: 2,
+        displayWidth: baseSize * tweenScale,
+        displayHeight: baseSize * tweenScale,
         duration: 100,
-        yoyo: true
+        yoyo: true,
+        onComplete: () => {
+            unit.displayWidth = baseSize * GameState.scaleFactor;
+            unit.displayHeight = baseSize * GameState.scaleFactor;
+        }
     });
 }
 
-// Returns the color for a unit based on its level
 export function getUnitColor(level) {
     return COLORS[level] || COLORS.default;
 }
 
-// Attempts to fuse the selected unit with a neighboring unit of the same level
 export function tryFusion(unit) {
     const { row, col, level } = unit;
     const directions = [
@@ -93,6 +118,7 @@ export function tryFusion(unit) {
         { r: -1, c: -1 }, { r: -1, c: 1 },
         { r: 1, c: -1 }, { r: 1, c: 1 }
     ];
+    
     for (let d of directions) {
         for (let step = 1; step <= 2; step++) {
             const newRow = row + d.r * step;
@@ -109,8 +135,8 @@ export function tryFusion(unit) {
 }
 
 export function findEmptySlot() {
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < GameState.grid_size; row++) {
+        for (let col = 0; col < GameState.grid_size; col++) {
             if (GameState.grid[row][col] === null) {
                 return { row, col };
             }
@@ -123,25 +149,21 @@ export function fuseUnits(unit1, unit2) {
     const fusionLevel = unit1.level + 1;
     const reward = fusionLevel * 10;
 
-    // Mise à jour du niveau max atteint
     GameState.actualMaxLevel = Math.max(GameState.actualMaxLevel, fusionLevel);
-
-    // Ajout des pièces
     GameState.coins += reward;
     updateCoinsDisplay();
 
-    // Suppression des anciennes unités
     unit1.text.destroy();
     unit2.text.destroy();
     unit1.destroy();
     unit2.destroy();
 
-    // Mise à jour de la grille
     GameState.grid[unit1.row][unit1.col] = null;
     GameState.grid[unit2.row][unit2.col] = null;
+    
     const scene = GameState.currentScene;
     if (!scene) {
-        console.error("Erreur : aucune scène disponible pour créer l'unité fusionnée !");
+        console.error("Error: no scene available to create fused unit!");
         return;
     }
 
@@ -159,16 +181,17 @@ export function isGameOver() {
 }
 
 export function hasValidMoves() {
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
+    const directions = [
+        { r: -1, c: 0 }, { r: 1, c: 0 },
+        { r: 0, c: -1 }, { r: 0, c: 1 },
+        { r: -1, c: -1 }, { r: -1, c: 1 },
+        { r: 1, c: -1 }, { r: 1, c: 1 }
+    ];
+    
+    for (let row = 0; row < GameState.grid_size; row++) {
+        for (let col = 0; col < GameState.grid_size; col++) {
             const unit = GameState.grid[row][col];
             if (unit) {
-                const directions = [
-                    { r: -1, c: 0 }, { r: 1, c: 0 },
-                    { r: 0, c: -1 }, { r: 0, c: 1 },
-                    { r: -1, c: -1 }, { r: -1, c: 1 },
-                    { r: 1, c: -1 }, { r: 1, c: 1 }
-                ];
                 for (let d of directions) {
                     for (let step = 1; step <= 2; step++) {
                         const newRow = row + d.r * step;

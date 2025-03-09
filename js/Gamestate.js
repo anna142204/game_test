@@ -1,5 +1,6 @@
 // js/GameState.js
-import { GRID_SIZE } from "./constants.js";
+import { setupCommonUI } from "./uiHelper.js";
+import { drawGrid } from "./grid.js";
 
 export const GameState = {
     grid: [],
@@ -19,10 +20,12 @@ export const GameState = {
     actualMaxLevel: 1,
     timerStarted: false,
     currentScene: null,
-    scaleFactor:1,
+    scaleFactor: 1,
+    grid_size: 3,
+    gridCells: [],
 
     reset() {
-        this.grid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
+        this.grid = Array.from({ length: this.grid_size }, () => Array(this.grid_size).fill(null));
         this.coins = 500;
         this.timeLeft = 210;
         this.gameActive = true;
@@ -30,5 +33,114 @@ export const GameState = {
         this.levelUpCost = 30;
         this.actualMaxLevel = 1;
         this.timerStarted = false;
+        this.gridCells = [];
+    },
+
+    updateGridSize() {
+        let oldSize = this.grid_size;
+        
+        if (this.actualMaxLevel >= 20) {
+            this.grid_size = 5;
+        } else if (this.actualMaxLevel >= 10) {
+            this.grid_size = 4;
+        } else {
+            this.grid_size = 3;
+        }
+     
+        if (this.grid_size !== oldSize) {
+    
+            let newGrid = Array.from({ length: this.grid_size }, () =>
+                Array(this.grid_size).fill(null)
+            );
+    
+            for (let row = 0; row < oldSize; row++) {
+                for (let col = 0; col < oldSize; col++) {
+                    if (row < this.grid_size && col < this.grid_size && this.grid[row] && this.grid[row][col]) {
+                        newGrid[row][col] = this.grid[row][col];
+                    }
+                }
+            }
+    
+            this.grid = newGrid;
+            
+            const isMobile = this.currentScene && this.currentScene.scale.width <= 980;
+            
+            if (isMobile) {
+                this.scaleFactor = this.grid_size === 3 ? 2 : 
+                                   this.grid_size === 4 ? 1.8 : 1.5;
+            } else {
+                this.scaleFactor = this.grid_size === 3 ? 1 : 
+                                   this.grid_size === 4 ? 0.8 : 0.6;
+            }
+            
+            this.clearGridCells();
+            
+            if (this.currentScene) {
+                drawGrid(this.currentScene);
+            }
+            
+            return true;
+        }
+        
+        return false;
+    },
+
+    clearGridCells() {
+        if (this.gridCells && this.gridCells.length > 0) {
+            this.gridCells.forEach(cell => {
+                if (cell && cell.destroy) {
+                    cell.destroy();
+                }
+            });
+            this.gridCells = [];
+        }
+        
+        if (this.currentScene) {
+            this.currentScene.children.each(child => {
+                if (child.texture && child.texture.key === 'gridCell') {
+                    child.destroy();
+                }
+            });
+        }
+    },
+
+    updateUnitPositions() {
+        if (!this.currentScene) return;
+        
+        const scaledUnitSize = this.unitSize * this.scaleFactor;
+    
+        const gridSizePixels = scaledUnitSize * this.grid_size;
+        this.gridStartX = this.currentScene.scale.width / 2 - gridSizePixels / 2;
+        this.gridStartY = this.currentScene.scale.height / 2 - gridSizePixels / 2 + 45 * this.scaleFactor;
+    
+        
+        for (let rowIndex = 0; rowIndex < this.grid_size; rowIndex++) {
+            for (let colIndex = 0; colIndex < this.grid_size; colIndex++) {
+                const unit = this.grid[rowIndex] && this.grid[rowIndex][colIndex];
+                if (unit) {
+                    try {
+                        
+                        const x = this.gridStartX + colIndex * scaledUnitSize + scaledUnitSize / 2;
+                        const y = this.gridStartY + rowIndex * scaledUnitSize + scaledUnitSize / 2;
+                        
+                        unit.x = x;
+                        unit.y = y;
+                        
+                        const baseSize = this.unitSize;
+                        unit.displayWidth = baseSize * this.scaleFactor;
+                        unit.displayHeight = baseSize * this.scaleFactor;
+                        
+                        if (unit.text) {
+                            const fontSize = 20 * this.scaleFactor;
+                            unit.text.setFontSize(fontSize);
+                            unit.text.x = x;
+                            unit.text.y = y;
+                        }
+                    } catch (error) {
+                        console.error('Error updating unit:', error);
+                    }
+                }
+            }
+        }
     }
 };
