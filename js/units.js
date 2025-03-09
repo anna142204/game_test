@@ -154,10 +154,7 @@ export function fuseUnits(unit1, unit2) {
 
 export function isGameOver() {
     if (!hasValidMoves() && isGridFull()) {
-        console.log("GameState.currentScene:", GameState.currentScene);
-        console.log("GameState.gameOverPanel:", GameState.gameOverPanel);
         showPanel(GameState.currentScene, GameState.gameOverPanel);
-        console.log("gameover");
     }
 }
 

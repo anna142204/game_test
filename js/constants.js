@@ -1,6 +1,6 @@
 // js/constants.js
 
-export const GRID_SIZE = 3;
+export const GRID_SIZE = 2;
 
 export const COLORS = {
     1: 0xff4444,

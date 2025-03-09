@@ -45,8 +45,7 @@ export class Infini extends Phaser.Scene {
         } else {
             scaleFactor = 1;
         }
-        GameState.gameOverPanel = createPanel(this, 'GAME OVER', '#FF0000', scaleFactor);
-        GameState.winPanel = createPanel(this, 'YOU WIN!', '#00FF00', scaleFactor);
+  
     }
 
     update() {}

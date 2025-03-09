@@ -2,18 +2,17 @@
 import { GameState } from "../js/GameState.js";
 import { drawGrid } from "../js/grid.js";
 import { purchaseUnit, findEmptySlot, isGameOver } from "../js/units.js";
+import { createPanel } from "./ui.js";
 
 import { GAME_KEY } from "./constants.js";
 
 
 export function setupCommonUI(scene, isInfinityMode = false) {
     const updateUI = (width = scene.scale.width, height = scene.scale.height) => {
-        console.log("Screen Width:", window.innerWidth);
-        console.log("Screen Height:", window.innerHeight);
-        console.log("Scale Factor:", GameState.scaleFactor);
+      
         // Clear existing UI elements (if any)
         scene.children.removeAll();
-
+     
         // Calculate scale factor
         let scaleFactor;
         if (width <= 980) {
@@ -22,7 +21,9 @@ export function setupCommonUI(scene, isInfinityMode = false) {
             scaleFactor = 1;
         }
        
-        
+        GameState.gameOverPanel = createPanel(scene, 'GAME OVER', '#FF0000', scaleFactor);
+        GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
+
         const centerX = width / 2;
         const centerY = height / 2;
 
