@@ -1,47 +1,51 @@
-// uiHelper.js
 import { GameState } from "../js/GameState.js";
 import { drawGrid } from "../js/grid.js";
-import { purchaseUnit, findEmptySlot, isGameOver } from "../js/units.js";
+import { purchaseUnit, findEmptySlot} from "../js/units.js";
 import { createPanel } from "./ui.js";
 
 import { GAME_KEY } from "./constants.js";
-
-
 export function setupCommonUI(scene, isInfinityMode = false) {
     const updateUI = (width = scene.scale.width, height = scene.scale.height) => {
         GameState.updateGridSize();
-        // Clear existing UI elements (if any)
+
         scene.children.removeAll();
-     
-        // Calculate scale factor
+
         let scaleFactor;
-        if (width <= 980) {
+
+        if (width <= 480) {
+            scaleFactor = 1.5;
+        } else if (width <= 768) {
+            scaleFactor = 1.8;
+        } else if (width <= 980) {
             scaleFactor = 2;
         } else {
             scaleFactor = 1;
         }
-       
+        
+        GameState.scaleFactor = scaleFactor;
+
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        const scaledUnitSize = GameState.unitSize * scaleFactor;
+        const gridSizePixels = scaledUnitSize * GameState.grid_size;
+ 
         GameState.gameOverPanel = createPanel(scene, 'GAME OVER', '#FF0000', scaleFactor);
         GameState.winPanel = createPanel(scene, 'YOU WIN!', '#00FF00', scaleFactor);
 
-        const centerX = width / 2;
-        const centerY = height / 2;
+        const isMobile = width <= 980;
+    
+        GameState.gridStartX = Math.floor(centerX - (gridSizePixels / 2));
+        GameState.gridStartY = isMobile 
+            ? Math.floor(centerY - (gridSizePixels / 2)) 
+            : Math.floor(centerY - (gridSizePixels / 3));
 
-        GameState.scaleFactor = scaleFactor;
-
-        const scaledUnitSize = GameState.unitSize * scaleFactor;
-        const gridSizePixels = scaledUnitSize * GameState.grid_size;
-
-        GameState.gridStartX = centerX - (gridSizePixels / 2);
-        GameState.gridStartY = centerY - (gridSizePixels / 2) + 45 * scaleFactor;
-
-
-        // Draw the grid
         drawGrid(scene);
 
-        // Title
-        scene.add.text(centerX, centerY - 330 * scaleFactor, `${GAME_KEY}`, {
-            font: `${70 * scaleFactor}px customFont`,
+        const titleY = isMobile ? height * 0.18 : height * 0.12;
+        const titleSize = isMobile ? 80 * scaleFactor : 70 * scaleFactor;
+        
+        scene.add.text(centerX, titleY, `${GAME_KEY}`, {
+            font: `${titleSize}px customFont`,
             fill: '#fff',
             stroke: '#000000',
             strokeThickness: 6 * scaleFactor
@@ -49,29 +53,42 @@ export function setupCommonUI(scene, isInfinityMode = false) {
             scene.scene.start('Start');
         });
 
-        // Coin display
-        GameState.coinsText = scene.add.text(centerX, centerY - 260 * scaleFactor, `Coins: ${GameState.coins}`, {
-            font: `${30 * scaleFactor}px customFont`,
-            fill: '#FFD700'
-        }).setOrigin(0.5).setDepth(2);
-
-        scene.add.image(centerX - 95 * scaleFactor, centerY - 260 * scaleFactor, 'coin')
+        const infoY = isMobile 
+            ? titleY + 100 * scaleFactor 
+            : titleY + 75 * scaleFactor; 
+        
+        const coinIconOffsetX = isMobile ? 20 * scaleFactor : 30 * scaleFactor;
+        const coinTextOffsetX = isMobile ? 40 * scaleFactor : 60 * scaleFactor;
+        
+        const coinIconX = centerX + coinIconOffsetX;
+        scene.add.image(coinIconX, infoY, 'coin')
             .setScale(0.6 * scaleFactor)
             .setDepth(1);
+            
+        const coinTextX = centerX + coinTextOffsetX;
+        GameState.coinsText = scene.add.text(coinTextX, infoY, `${GameState.coins}$`, {
+            font: `${30 * scaleFactor}px customFont`,
+            fill: '#FFD700'
+        }).setOrigin(0, 0.5).setDepth(2);
 
-        // Timer display
+        const timerOffsetX = isMobile ? -80 * scaleFactor : -100;
         const timerText = isInfinityMode ? 'Time: ∞' : `Time: ${GameState.timeLeft}s`;
-        GameState.timeText = scene.add.text(centerX, centerY - 220 * scaleFactor, timerText, {
+        GameState.timeText = scene.add.text(centerX + timerOffsetX, infoY, timerText, {
             font: `${24 * scaleFactor}px customFont`,
             fill: '#FFFFFF'
         }).setOrigin(0.5).setDepth(2);
 
-        // Add unit button
+        const buttonOffset = isMobile ? 80 * scaleFactor : 100 * scaleFactor;
+        const buttonY = GameState.gridStartY + gridSizePixels + buttonOffset;
+        
+        const buttonWidth = isMobile ? 180 * scaleFactor : 200 * scaleFactor;
+        const buttonHeight = isMobile ? 50 * scaleFactor : 60 * scaleFactor;
+        
         const addUnitButton = scene.add.rectangle(
             centerX,
-            centerY + 320 * scaleFactor,
-            220 * scaleFactor,
-            60 * scaleFactor,
+            buttonY,
+            buttonWidth,
+            buttonHeight,
             0xfffd77,
             0.8
         )
@@ -109,12 +126,12 @@ export function setupCommonUI(scene, isInfinityMode = false) {
                 });
             });
 
-        const buttonText = scene.add.text(centerX, centerY + 320 * scaleFactor, `Acheter | ${GameState.levelUpCost}$`, {
-            font: `${24 * scaleFactor}px customFont`,
+        const buttonFontSize = isMobile ? 20 * scaleFactor : 24 * scaleFactor;
+        const buttonText = scene.add.text(centerX, buttonY, `Buy  |  ${GameState.levelUpCost}$`, {
+            font: `${buttonFontSize}px customFont`,
             fill: '#000'
         }).setOrigin(0.5).setDepth(3);
 
-        // Update button state
         const updateButtonState = () => {
             const emptySlot = findEmptySlot();
             if (!emptySlot || GameState.coins < GameState.levelUpCost) {
@@ -135,13 +152,10 @@ export function setupCommonUI(scene, isInfinityMode = false) {
         });
 
         updateButtonState();
-
     };
 
-    // Initialize the UI
     updateUI();
 
-    // Handle resizing
     scene.scale.on('resize', (gameSize) => {
         updateUI(gameSize.width, gameSize.height);
     });

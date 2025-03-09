@@ -14,7 +14,7 @@ const config = {
         width: 800,
         height: 600
     },
-    backgroundColor: "#292039",
+    backgroundColor: "#392039",
     scene: [Start, Game, Infini]
 };
 

@@ -3,7 +3,7 @@ import { GameState } from "./GameState.js";
 import { GAME_KEY } from "./constants.js";
 
 export function updateCoinsDisplay() {
-    GameState.coinsText.setText(`Coins: ${GameState.coins}`);
+    GameState.coinsText.setText(`${GameState.coins}$`);
 }
 
 export function updateTimer(scene) {

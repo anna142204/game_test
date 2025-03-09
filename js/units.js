@@ -112,27 +112,31 @@ export function getUnitColor(level) {
 
 export function tryFusion(unit) {
     const { row, col, level } = unit;
+    
     const directions = [
-        { r: -1, c: 0 }, { r: 1, c: 0 },
-        { r: 0, c: -1 }, { r: 0, c: 1 },
-        { r: -1, c: -1 }, { r: -1, c: 1 },
-        { r: 1, c: -1 }, { r: 1, c: 1 }
+      { r: -1, c: 0 }, { r: 1, c: 0 },   
+      { r: 0, c: -1 }, { r: 0, c: 1 },   
+      { r: -1, c: -1 }, { r: -1, c: 1 },
+      { r: 1, c: -1 }, { r: 1, c: 1 }
     ];
+ 
+    const maxDistance = GameState.grid_size - 1;
     
     for (let d of directions) {
-        for (let step = 1; step <= 2; step++) {
-            const newRow = row + d.r * step;
-            const newCol = col + d.c * step;
-            if (isValidGridPosition(newRow, newCol)) {
-                const neighbor = GameState.grid[newRow][newCol];
-                if (neighbor && neighbor.level === level) {
-                    fuseUnits(unit, neighbor);
-                    return;
-                }
-            }
+      for (let step = 1; step <= maxDistance; step++) {
+        const newRow = row + d.r * step;
+        const newCol = col + d.c * step;
+        
+        if (isValidGridPosition(newRow, newCol)) {
+          const neighbor = GameState.grid[newRow][newCol];
+          if (neighbor && neighbor.level === level) {
+            fuseUnits(unit, neighbor);
+            return;
+          }
         }
+      }
     }
-}
+  }
 
 export function findEmptySlot() {
     for (let row = 0; row < GameState.grid_size; row++) {
@@ -182,30 +186,37 @@ export function isGameOver() {
 
 export function hasValidMoves() {
     const directions = [
-        { r: -1, c: 0 }, { r: 1, c: 0 },
-        { r: 0, c: -1 }, { r: 0, c: 1 },
-        { r: -1, c: -1 }, { r: -1, c: 1 },
-        { r: 1, c: -1 }, { r: 1, c: 1 }
+      { r: -1, c: 0 }, { r: 1, c: 0 },   // vertical
+      { r: 0, c: -1 }, { r: 0, c: 1 },   // horizontal
+      { r: -1, c: -1 }, { r: -1, c: 1 }, // diagonales
+      { r: 1, c: -1 }, { r: 1, c: 1 }
     ];
     
+    // Déterminer la distance maximale à vérifier basée sur la taille de la grille
+    const maxDistance = GameState.grid_size - 1;
+    
     for (let row = 0; row < GameState.grid_size; row++) {
-        for (let col = 0; col < GameState.grid_size; col++) {
-            const unit = GameState.grid[row][col];
-            if (unit) {
-                for (let d of directions) {
-                    for (let step = 1; step <= 2; step++) {
-                        const newRow = row + d.r * step;
-                        const newCol = col + d.c * step;
-                        if (isValidGridPosition(newRow, newCol)) {
-                            const neighbor = GameState.grid[newRow][newCol];
-                            if (neighbor && neighbor.level === unit.level) {
-                                return true;
-                            }
-                        }
-                    }
+      for (let col = 0; col < GameState.grid_size; col++) {
+        const unit = GameState.grid[row][col];
+        
+        if (unit) {
+          for (let d of directions) {
+            // Vérifier toutes les distances possibles selon la taille de la grille
+            for (let step = 1; step <= maxDistance; step++) {
+              const newRow = row + d.r * step;
+              const newCol = col + d.c * step;
+              
+              if (isValidGridPosition(newRow, newCol)) {
+                const neighbor = GameState.grid[newRow][newCol];
+                if (neighbor && neighbor.level === unit.level) {
+                  return true;
                 }
+              }
             }
+          }
         }
+      }
     }
+    
     return false;
-}
+  }
