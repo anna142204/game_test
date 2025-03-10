@@ -1,17 +1,22 @@
 {
-    "name": "LevelCats",
-    "short_name": "LevelCats",
-    "description": "Un jeu de fusion et de stratégie",
-    "start_url": "index.html",
-    "display": "fullscreen",
-    "background_color": "#292039",
-    "theme_color": "#292039",
-    "icons": [
-      {
-        "src": "assets/chat.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      }
-    ]
-  }
-  
+  "name": "LevelCats",
+  "short_name": "LevelCats",
+  "description": "Un jeu de fusion et de stratégie",
+  "start_url": "index.html",
+  "display": "fullscreen",
+  "background_color": "#292039",
+  "theme_color": "#292039",
+
+  "icons": [
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
