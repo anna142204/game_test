@@ -1,0 +1,17 @@
+{
+    "name": "LevelCats",
+    "short_name": "LevelCats",
+    "description": "Un jeu de fusion et de stratégie",
+    "start_url": "index.html",
+    "display": "fullscreen",
+    "background_color": "#292039",
+    "theme_color": "#292039",
+    "icons": [
+      {
+        "src": "assets/chat.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      }
+    ]
+  }
+  
