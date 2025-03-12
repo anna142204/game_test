@@ -13,7 +13,6 @@ export class Infini extends Phaser.Scene {
         this.load.image('gridCell', 'assets/case.png');
         this.load.image('unit', 'assets/chat.png');
         this.load.image('coin', 'assets/coin.png');
-        this.load.image('deco1', 'assets/catfond.png');
         this.load.font('customFont', 'assets/SourGummy-VariableFont_wdth,wght.ttf');
         // this.load.audio('coinSound', 'assets/coin.mp3');
     }
