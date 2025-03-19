@@ -11,7 +11,7 @@ export class LayoutManager {
     }
 
     get titleY() {
-        return Math.round(this.isMobile ? this.height * 0.25 + this.offsetY : this.height * 0.12 + this.offsetY);
+        return Math.round(this.isMobile ? this.height * 0.19 + this.offsetY : this.height * 0.12 + this.offsetY);
     }
 
     get gridY() {
@@ -19,7 +19,7 @@ export class LayoutManager {
     }
 
     get resourcesY() {
-        return Math.round(this.isMobile ? this.titleY * 1.3  : this.titleY * 1.6);
+        return Math.round(this.isMobile ? this.titleY * 1.4  : this.titleY * 1.6);
     }
 
     get resourcesX() {
@@ -31,7 +31,7 @@ export class LayoutManager {
     } 
 
     get buyButtonY() {
-        return Math.round(this.centerY*1.7);
+        return Math.round(this.isMobile ? this.gridY * 2.6  : this.gridY* 2.5);
     }
     get backButtonY() {
         return Math.round(this.isMobile ? this.titleY*0.5 : this.titleY*0.5);
