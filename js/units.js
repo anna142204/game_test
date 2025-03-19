@@ -1,7 +1,7 @@
 // js/units.js
 import { GameState } from "./GameState.js";
 import { updateCoinsDisplay, showPanel, updateTimer } from "./ui.js";
-import { COLORS } from "./constants.js";
+import { COLORS_dark, COLORS_light, THEMES, LAYOUT } from "./constants.js";
 import { isValidGridPosition, isGridFull } from "./grid.js";
 
 export function purchaseUnit(scene) {
@@ -47,9 +47,11 @@ export function addNewUnit(scene) {
 
   const { row, col } = emptySlot;
   const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
+  const { width, height } = scene.scale;
+  const isMobile = width <= LAYOUT.scaling.breakpoint;
+  let x = GameState.gridStartX + col * scaledUnitSize + scaledUnitSize / 2;
+  let y = GameState.gridStartY + row * scaledUnitSize + (isMobile ? scaledUnitSize : scaledUnitSize / 2);
 
-  const x = GameState.gridStartX + col * scaledUnitSize + scaledUnitSize / 2;
-  const y = GameState.gridStartY + row * scaledUnitSize + scaledUnitSize / 2;
 
   // let minGridLevel = getLowestUnitOnGrid();
   // let theoreticalMinLevel = Math.floor(GameState.actualMaxLevel / 5) + 1;
@@ -58,12 +60,12 @@ export function addNewUnit(scene) {
 
   // let unitLevel = Phaser.Math.Between(minLevel, maxLevel);
   let unitLevel = 1;
-  if (GameState.actualMaxLevel >= 4) {
+  if (GameState.actualMaxLevel >= 3) {
     unitLevel = Phaser.Math.Between(1, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
 
     if (GameState.actualMaxLevel >= 10) {
       let minGridLevel = getLowestUnitOnGrid();
-      let minLevel = Math.max(1, minGridLevel); 
+      let minLevel = Math.max(1, minGridLevel);
 
       if (minLevel === 1) {
         unitLevel = Phaser.Math.Between(minLevel, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
@@ -73,26 +75,29 @@ export function addNewUnit(scene) {
     }
 
   }
-  createUnitAt(scene, row, col, x, y, unitLevel);
+  createUnitAt(scene, row, col, x + 1, y + 1, unitLevel);
 }
 
 function createUnitAt(scene, row, col, x, y, level) {
   const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
   const unitColor = getUnitColor(level);
 
-  const isMobile = scene.scale.width <= 980;
+  const { width, height } = scene.scale;
+  const isMobile = width <= LAYOUT.scaling.breakpoint;
   const baseSize = GameState.unitSize;
 
-  const unit = scene.add.image(x, y, 'unit')
+  let unitTexture = GameState.unitSkin || 'unit'; // ✅ Applique le skin sélectionné
+
+  const unit = scene.add.image(x, y, unitTexture)
     .setDisplaySize(baseSize * GameState.scaleFactor, baseSize * GameState.scaleFactor)
     .setTint(unitColor)
     .setDepth(3);
 
-  const fontSize = (isMobile ? 28 : 20) * GameState.scaleFactor;
-  const text = scene.add.text(x, y, level.toString(), {
+  const fontSize = (isMobile ? 30 : 30) * GameState.scaleFactor;
+  const text = scene.add.text(x - 3, y, level.toString(), {
     font: `${fontSize}px customFont`,
     fill: "#fff"
-  }).setOrigin(0.5).setDepth(4);
+  }).setOrigin(0.3).setDepth(4);
 
   unit.level = level;
   unit.row = row;
@@ -122,8 +127,10 @@ function createUnitAt(scene, row, col, x, y, level) {
 }
 
 export function getUnitColor(level) {
-  return COLORS[level] || COLORS.default;
+  const themeColors = GameState.currentTheme === THEMES.dark ? COLORS_dark : COLORS_light; // 🟢 Choix selon le thème
+  return themeColors[level] || themeColors.default;
 }
+
 
 export function tryFusion(unit) {
   const { row, col, level } = unit;
@@ -151,6 +158,21 @@ export function tryFusion(unit) {
       }
     }
   }
+  showFailAnimation(unit);
+}
+function showFailAnimation(unit) {
+  const text = unit.text; // Récupère le texte lié à l’unité
+
+  // 🟠 Animation de tremblement pour l'unité et son texte
+  unit.scene.tweens.add({
+    targets: [unit, text], // 📝 Ajoute le texte dans l’animation
+    x: unit.x + 3, // Déplacement léger vers la droite
+    duration: 50,
+    yoyo: true,
+    repeat: 2, // Répète deux fois pour l’effet de tremblement
+    ease: 'Power1'
+  });
+
 }
 
 export function findEmptySlot() {
@@ -187,8 +209,11 @@ export function fuseUnits(unit1, unit2) {
   }
 
   const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
-  const x = GameState.gridStartX + unit1.col * scaledUnitSize + scaledUnitSize / 2;
-  const y = GameState.gridStartY + unit1.row * scaledUnitSize + scaledUnitSize / 2;
+  const { width, height } = scene.scale;
+  const isMobile = width <= LAYOUT.scaling.breakpoint;
+  let x = GameState.gridStartX + unit1.col * scaledUnitSize + scaledUnitSize / 2;
+  let y = GameState.gridStartY + unit1.row * scaledUnitSize + (isMobile ? scaledUnitSize : scaledUnitSize / 2);
+
 
   createUnitAt(scene, unit1.row, unit1.col, x, y, fusionLevel);
 }

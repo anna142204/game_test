@@ -1,4 +1,7 @@
-import { GAME_KEY } from "../js/constants.js";
+import { GAME_KEY, THEMES, LAYOUT, fontStyle } from "../js/constants.js";
+import { GameState } from "../js/GameState.js";
+import { switchTheme } from "../js/uiHelper.js";
+import { LayoutManager } from "../js/layoutManager.js";
 
 export class Start extends Phaser.Scene {
     constructor() {
@@ -6,70 +9,68 @@ export class Start extends Phaser.Scene {
     }
 
     preload() {
-        this.load.font('customFont', 'assets/SourGummy-VariableFont_wdth,wght.ttf');
-        this.load.image('unit', 'assets/chat.png');
     }
 
     create() {
-        this.updateUI();
-
-        // Gestion du redimensionnement
-        this.scale.on('resize', (gameSize) => {
-            this.updateUI(gameSize.width, gameSize.height);
-        });
+        this.cameras.main.fadeIn(300, 0, 0, 0);
+        this.cameras.main.setBackgroundColor(GameState.currentTheme.background);
     
-    }
-
-    updateUI(width = this.scale.width, height = this.scale.height) {
-
-        const centerX = width / 2;
-        const centerY = height / 2;
-        
-        // Effacer les éléments existants avant de les recréer (utile en cas de resize)
-        this.children.removeAll();
-
-        // **Facteur d'échelle basé sur la hauteur de l'écran**
-        let scaleFactor;
-        if(width<=980){
-            scaleFactor=2.1;
-        }else{
-            scaleFactor = 1.1;
-        }
+        this.layout = new LayoutManager(this);
+        const theme = GameState.currentTheme;
+        const scaleFactor = this.layout.scaleFactor;
        
+       const fontSize =  Math.round(LAYOUT.fonts.title * scaleFactor);
+    
+       //Title
+       this.createText(this.layout.centerX, this.layout.titleY+80, GAME_KEY, {
+        font: `${Math.round(LAYOUT.fonts.title * scaleFactor)}px customFont`,
+        fill: theme.titleText,
+        stroke: theme.stroke,
+        strokeThickness: Math.round(LAYOUT.styles.strokeThickness * scaleFactor),
+        resolution: window.devicePixelRatio
+    });
+    const buttonImage = GameState.currentTheme === THEMES.light ? 'buttonLight' : 'buttonDark';
+    const buttonTheme = GameState.currentTheme === THEMES.light ? 'buttonThemeLight' : 'buttonThemeDark';
+    const fontColor = GameState.currentTheme === THEMES.light ? '#4C202F' : '#ffffff';
 
-        // Titre du jeu
-        this.add.text(centerX, centerY - 130 * scaleFactor, `${GAME_KEY}`, {
-            font: `${80 * scaleFactor}px customFont`,
-            fill: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 6 * scaleFactor
-        }).setOrigin(0.5);
+    this.add.image(this.layout.centerX, this.layout.gridY*1.35, 'unit').setScale(scaleFactor);
+    
+    this.createButton(Math.round(LAYOUT.button.width * scaleFactor),this.layout.centerX + this.layout.buttonSpacing, this.layout.buttonY, 'Infinity mode', 'Infini', scaleFactor, buttonImage);
+    this.createButton(Math.round(LAYOUT.button.width * scaleFactor),this.layout.centerX - this.layout.buttonSpacing, this.layout.buttonY, 'Level mode', 'Game', scaleFactor, buttonImage);
+    this.createButton(Math.round(30+LAYOUT.button.width * scaleFactor),this.layout.centerX, this.layout.buttonY + this.layout.buttonSpacing, "Switch theme", () => switchTheme(this), scaleFactor, buttonTheme,fontColor);
 
-        // Image centrale (ajustée en taille)
-        this.add.image(centerX, centerY + 10 * scaleFactor, 'unit')
-            .setScale(scaleFactor);
+    this.createText(this.layout.centerX, Math.round(this.layout.height * 0.9), "made by Spilana", {
+        fontSize: `${Math.round(LAYOUT.fonts.credit * scaleFactor)}px`,
+        fill: theme.text
+    });
+}
 
-        // Boutons de mode de jeu
-        this.createButton(centerX - 100 * scaleFactor, centerY + 150 * scaleFactor, 'Infinity mode', () => this.scene.start('Infini'), scaleFactor);
-        this.createButton(centerX + 100 * scaleFactor, centerY + 150 * scaleFactor, 'Level mode', () => this.scene.start('Game'), scaleFactor);
+createButton(width, x, y, text, callback, scaleFactor, buttonImage,fontColor= GameState.currentTheme.buttonText) {
+  
+    
+    const button = this.add.image(x, y, buttonImage)
+        .setDisplaySize(width, Math.round(LAYOUT.button.height * scaleFactor))
+        .setInteractive()
+        .setDepth(2)
+        .on('pointerdown', () => {
+            if (typeof callback === "function") {
+                callback();
+            } else {
+                this.cameras.main.fadeOut(300, 0, 0, 0);
+                this.time.delayedCall(300, () => {
+                    this.scene.start(callback);
+                });
+            }
+        });
 
-        // Crédit
-        this.add.text(centerX, height * 0.9, "made by Spilana", {
-            fontSize: `${16 * scaleFactor}px`,
-            fill: '#ffffff',
-        }).setOrigin(0.5);
-    }
+    this.add.text(x, y, text, {
+        font: `${Math.round(LAYOUT.fonts.button * scaleFactor)}px customFont`,
+        fill: fontColor,
+        resolution: window.devicePixelRatio 
+    }).setOrigin(0.5).setDepth(3);
+}
 
-    createButton(x, y, text, callback, scaleFactor) {
-        const button = this.add.rectangle(x, y, 180 * scaleFactor, 60 * scaleFactor, 0xfffd77, 0.8)
-            .setStrokeStyle(3 * scaleFactor, 0x000000)
-            .setInteractive()
-            .setDepth(2)
-            .on('pointerdown', callback);
-
-        const buttonText = this.add.text(x, y, text, {
-            font: `${24 * scaleFactor}px customFont`,
-            fill: '#000'
-        }).setOrigin(0.5).setDepth(3);
-    }
+createText(x, y, text, style) {
+    this.add.text(x, y, text, style).setOrigin(0.5);
+}
 }

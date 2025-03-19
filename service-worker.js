@@ -5,7 +5,7 @@ self.addEventListener("install", (event) => {
                 "/",
                 "/index.html",
                 "/main.js",
-                "/assets/chat.png",
+                "/assets/pixelcat.png",
                 "/assets/coin.png",
                 "/assets/case.png",
                 "/assets/SourGummy-VariableFont_wdth,wght.ttf"

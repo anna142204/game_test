@@ -1,7 +1,7 @@
 import { GameState } from "../js/GameState.js";
-import { spawnHiddenCoin, createPanel } from "../js/ui.js";
+import { spawnHiddenCoin} from "../js/ui.js";
 import { setupCommonUI } from "../js/uiHelper.js";
-import { drawGrid } from "../js/grid.js";
+import { purchaseUnit } from "../js/units.js";
 
 
 export class Infini extends Phaser.Scene {
@@ -10,26 +10,33 @@ export class Infini extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('gridCell', 'assets/case.png');
-        this.load.image('unit', 'assets/chat.png');
-        this.load.image('coin', 'assets/coin.png');
-        this.load.font('customFont', 'assets/SourGummy-VariableFont_wdth,wght.ttf');
-        // this.load.audio('coinSound', 'assets/coin.mp3');
+      
     }
 
     create() {
+        this.cameras.main.fadeIn(300, 0, 0, 0);   
+        
         GameState.reset();
         GameState.currentScene = this;
+
+        this.cameras.main.setBackgroundColor(GameState.currentTheme.background);
+
         if (GameState.timer) {
             GameState.timer.remove();
             GameState.timer = null;
         }
         GameState.timerStarted = false;
 
-        this.time.delayedCall(100, () => {
+       
             setupCommonUI(this, true);
-        });
+      
 
+        this.input.keyboard.on('keydown-SPACE', () => {
+            if (GameState.gameActive) {
+                purchaseUnit(this);
+            }
+        });
+         
         if (!this.coinTimer) {
             this.coinTimer = this.time.addEvent({
                 delay: 20000,
@@ -37,14 +44,7 @@ export class Infini extends Phaser.Scene {
                 loop: true
             });
         }
-        let width = this.scale.width;
-        let scaleFactor;
-        if (width <= 980) {
-            scaleFactor = 2;
-        } else {
-            scaleFactor = 1;
-        }
-  
+    
     }
     update() {
         GameState.updateGridSize();

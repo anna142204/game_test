@@ -15,7 +15,7 @@ export function updateTimer(scene) {
     }
 }
 
-export function createPanel(scene, title, titleColor, scaleFactor) {
+export function createPanel(scene, title, theme, scaleFactor) {
     const panel = scene.add.group();
     
     const overlay = scene.add.rectangle(
@@ -23,7 +23,7 @@ export function createPanel(scene, title, titleColor, scaleFactor) {
         scene.cameras.main.centerY,
         scene.cameras.main.width,
         scene.cameras.main.height,
-        0x000000, 0.7
+        0x000000, 0.8
     ).setDepth(10);
     
     const titleText = scene.add.text(
@@ -32,7 +32,7 @@ export function createPanel(scene, title, titleColor, scaleFactor) {
         title,
         {
             font: `${80 * scaleFactor}px customFont`,
-            fill: titleColor,
+            fill: theme.gameOverText,
             stroke: '#000000',
             strokeThickness: 8 * scaleFactor
         }
@@ -62,7 +62,7 @@ export function createPanel(scene, title, titleColor, scaleFactor) {
         scene.cameras.main.centerX,
         scene.cameras.main.centerY + 130 * scaleFactor,
         200 * scaleFactor, 60 * scaleFactor, 
-        0x00FF00, 0.8
+        theme.gameOverButton, 0.8
     ).setStrokeStyle(3 * scaleFactor, 0x000000).setInteractive().setDepth(10);
     
     const replayText = scene.add.text(
@@ -127,7 +127,7 @@ export function spawnHiddenCoin(scene) {
     const x = Phaser.Math.Between(centerX - range, centerX + range);
     const y = Phaser.Math.Between(centerY - range, centerY + range);
     const coin = scene.add.image(x, y, 'coin')
-        .setScale(1.2)
+        .setScale(GameState.scaleFactor)
         .setInteractive()
         .setDepth(4);
     coin.on('pointerdown', () => {

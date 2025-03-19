@@ -1,6 +1,7 @@
 // js/GameState.js
 import { setupCommonUI } from "./uiHelper.js";
 import { drawGrid } from "./grid.js";
+import { THEMES } from "./constants.js";
 
 export const GameState = {
     grid: [],
@@ -23,17 +24,22 @@ export const GameState = {
     scaleFactor: 1,
     grid_size: 3,
     gridCells: [],
+    currentTheme: THEMES.dark,
+   unitSkin : 'unit',
+
 
     reset() {
         this.grid = Array.from({ length: this.grid_size }, () => Array(this.grid_size).fill(null));
         this.coins = 500;
-        this.timeLeft = 210;
+        this.timeLeft = 10;
         this.gameActive = true;
         this.hiddenCoins = [];
         this.levelUpCost = 30;
         this.actualMaxLevel = 1;
         this.timerStarted = false;
         this.gridCells = [];
+        this.shopOpen = false;
+        this.shopGroup = null;
     },
 
     updateGridSize() {

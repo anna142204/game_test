@@ -1,8 +1,7 @@
 import { GameState } from "../js/GameState.js";
-import { updateTimer } from "../js/ui.js";
-import { spawnHiddenCoin, createPanel } from "../js/ui.js";
+import { updateTimer, spawnHiddenCoin, createPanel } from "../js/ui.js";
 import { setupCommonUI } from "../js/uiHelper.js";
-
+import { LAYOUT } from "../js/constants.js";
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -10,27 +9,30 @@ export class Game extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('gridCell', 'assets/case.png');
-        this.load.image('unit', 'assets/chat.png');
-        this.load.image('coin', 'assets/coin.png');
-        this.load.font('customFont', 'assets/SourGummy-VariableFont_wdth,wght.ttf');
-        // this.load.audio('coinSound', 'assets/coin.mp3');
+    
     }
 
     create() {
+        // Effet de transition
+        this.cameras.main.fadeIn(300, 0, 0, 0);
+        
+        // Initialisation de l'état du jeu
         GameState.reset();
         GameState.currentScene = this;
-   
-        this.time.delayedCall(100, () => {
-            setupCommonUI(this, false); 
-        });
+        this.cameras.main.setBackgroundColor(GameState.currentTheme.background);
+        
+      
+        setupCommonUI(this, false); 
+      
 
+        // Configuration du timer
         this.time.addEvent({
             delay: 1000,
             callback: () => updateTimer(this),
             loop: true
         });
 
+        // Configuration du timer pour les pièces cachées
         if (!this.coinTimer) {
             this.coinTimer = this.time.addEvent({
                 delay: 20000,
@@ -38,15 +40,13 @@ export class Game extends Phaser.Scene {
                 loop: true
             });
         }
-        let width = this.scale.width;
-        let scaleFactor;
-        if (width <= 980) {
-            scaleFactor = 2;
-        } else {
-            scaleFactor = 1;
-        }
-      
+        
+        // Calcul du facteur d'échelle en fonction de la largeur de l'écran
+        const width = this.scale.width;
+        const height = this.scale.height;
+        const scaleFactor = width <= LAYOUT.scaling.breakpoint ? 
+            LAYOUT.scaling.mobile : LAYOUT.scaling.desktop;
+        
     }
-
     update() {}
 }
