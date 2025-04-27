@@ -21,9 +21,38 @@ export function purchaseUnit(scene) {
     addNewUnit(scene);
     GameState.coins -= GameState.levelUpCost;
     updateCoinsDisplay();
+    GameState.save();
   }
   isGameOver();
 }
+
+
+export function chooseUnitLevel() {
+    const minGridLevel = getLowestUnitOnGrid();
+
+    let safeMinLevel = 1;
+
+    if (GameState.actualMaxLevel >= 40) {
+        safeMinLevel = 12;
+    } else if (GameState.actualMaxLevel >= 30) {
+        safeMinLevel = 10;
+    } else if (GameState.actualMaxLevel >= 20) {
+        safeMinLevel = 6;
+    } else if (GameState.actualMaxLevel >= 10) {
+        safeMinLevel = 3;
+    }
+
+    safeMinLevel = Math.min(minGridLevel, safeMinLevel);
+
+    let safeMaxLevel = Math.min(GameState.actualMaxLevel - 1, safeMinLevel + 2);
+
+    let unitLevel = Phaser.Math.Between(safeMinLevel, safeMaxLevel);
+
+    unitLevel = Math.max(1, unitLevel);
+
+    return unitLevel;
+}
+
 
 export function getLowestUnitOnGrid() {
   let minLevel = GameState.actualMaxLevel;
@@ -59,26 +88,28 @@ export function addNewUnit(scene) {
   // let maxLevel = Math.min(GameState.actualMaxLevel - 1, minLevel + 2);
 
   // let unitLevel = Phaser.Math.Between(minLevel, maxLevel);
-  let unitLevel = 1;
-  if (GameState.actualMaxLevel >= 3) {
-    unitLevel = Phaser.Math.Between(1, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
+  // let unitLevel = 1;
+  // if (GameState.actualMaxLevel >= 3) {
+  //   unitLevel = Phaser.Math.Between(1, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
 
-    if (GameState.actualMaxLevel >= 10) {
-      let minGridLevel = getLowestUnitOnGrid();
-      let minLevel = Math.max(1, minGridLevel);
+  //   if (GameState.actualMaxLevel >= 10) {
+  //     let minGridLevel = getLowestUnitOnGrid();
+  //     let minLevel = Math.max(1, minGridLevel);
 
-      if (minLevel === 1) {
-        unitLevel = Phaser.Math.Between(minLevel, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
-      } else {
-        unitLevel = Phaser.Math.Between(2, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
-      }
-    }
+  //     if (minLevel === 1) {
+  //       unitLevel = Phaser.Math.Between(minLevel, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
+  //     } else {
+  //       unitLevel = Phaser.Math.Between(2, Math.max(2, Math.floor(GameState.actualMaxLevel / 2)));
+  //     }
+  //   }
 
-  }
+  // }
+  let unitLevel = chooseUnitLevel();
+
   createUnitAt(scene, row, col, x + 1, y + 1, unitLevel);
 }
 
-function createUnitAt(scene, row, col, x, y, level) {
+function createUnitAt(scene, row, col, x, y, level,skin = null) {
   const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
   const unitColor = getUnitColor(level);
 
@@ -86,7 +117,7 @@ function createUnitAt(scene, row, col, x, y, level) {
   const isMobile = width <= LAYOUT.scaling.breakpoint;
   const baseSize = GameState.unitSize;
 
-  let unitTexture = GameState.unitSkin || 'unit'; // ✅ Applique le skin sélectionné
+  let unitTexture = skin || GameState.unitSkin || 'unit';
 
   const unit = scene.add.image(x, y, unitTexture)
     .setDisplaySize(baseSize * GameState.scaleFactor, baseSize * GameState.scaleFactor)
@@ -126,8 +157,33 @@ function createUnitAt(scene, row, col, x, y, level) {
   });
 }
 
+export function recreateGridFromSave(scene) {
+  const savedGrid = GameState.savedGrid;
+  if (!savedGrid) return;
+
+  GameState.grid = Array.from({ length: savedGrid.length }, () => Array(savedGrid[0].length).fill(null));
+
+  const scaledUnitSize = GameState.unitSize * GameState.scaleFactor;
+  const isMobile = scene.scale.width <= 980; // à ajuster selon ton LAYOUT
+  const offsetY = isMobile ? scaledUnitSize : scaledUnitSize / 2;
+
+  GameState.gridStartX = scene.scale.width / 2 - scaledUnitSize * GameState.grid_size / 2;
+  GameState.gridStartY = scene.scale.height / 2 - scaledUnitSize * GameState.grid_size / 2 + 45 * GameState.scaleFactor;
+
+  savedGrid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+          if (cell) {
+              const x = GameState.gridStartX + colIndex * scaledUnitSize + scaledUnitSize / 2;
+              const y = GameState.gridStartY + rowIndex * scaledUnitSize + offsetY;
+
+              createUnitAt(scene, rowIndex, colIndex, x, y, cell.level, cell.skin); // ✅
+          }
+      });
+  });
+}
+
 export function getUnitColor(level) {
-  const themeColors = GameState.currentTheme === THEMES.dark ? COLORS_dark : COLORS_light; // 🟢 Choix selon le thème
+  const themeColors = GameState.currentTheme === THEMES.dark ? COLORS_dark : COLORS_light; 
   return themeColors[level] || themeColors.default;
 }
 
@@ -153,6 +209,7 @@ export function tryFusion(unit) {
         const neighbor = GameState.grid[newRow][newCol];
         if (neighbor && neighbor.level === level) {
           fuseUnits(unit, neighbor);
+          GameState.save();
           return;
         }
       }

@@ -8,7 +8,8 @@ self.addEventListener("install", (event) => {
                 "/assets/pixelcat.png",
                 "/assets/coin.png",
                 "/assets/case.png",
-                "/assets/SourGummy-VariableFont_wdth,wght.ttf"
+                "/assets/SourGummy-VariableFont_wdth,wght.ttf",
+                "/assets/favicon.ico",
             ]);
         })
     );

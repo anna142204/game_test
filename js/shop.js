@@ -36,7 +36,8 @@ function showShopPopup(scene, theme, scaleFactor) {
 
     const shopGroup = scene.add.group();
 
-    const backgroundBar = scene.add.image(centerX, barY, 'shopBackground')
+    const shopBackgroundImage = GameState.currentTheme === THEMES.dark ? 'shopBackgroundDark' : 'shopBackgroundLight';
+    const backgroundBar = scene.add.image(centerX, barY, shopBackgroundImage)
         .setDepth(8)
         .setOrigin(0.5)
         .setInteractive()
@@ -44,28 +45,39 @@ function showShopPopup(scene, theme, scaleFactor) {
     shopGroup.add(backgroundBar);
 
     const SHOP_ITEMS = [
-        { name: '🐱', price: 100, skin: 'unitCat' },
         { name: '❤️', price: 100, skin: 'unitHeart' },
-        { name: '⭐️', price: 100, skin: 'unitStar' },
+        { name: '⭐️', price: 200, skin: 'unitStar' },
+        { name: '🌸', price: 300, skin: 'unitFlower' },
         { name: '🔄', price: 0, skin: 'unit' }
     ];
 
     SHOP_ITEMS.forEach((item, index) => {
-       
-        const xPosition = centerX - (80*scaleFactor * ( layout.isMobile ? 1.7 -index: 1.3 - index));
-
-        const priceText = scene.add.text(xPosition, barY + Math.round(30 * scaleFactor), `${item.price}$`, {
+        const xPosition = centerX - (80*scaleFactor * (layout.isMobile ? 1.7 - index : 1.3 - index));
+    
+        const alreadyOwned = GameState.ownedSkins.includes(item.skin); 
+    
+        const priceOrObtained = alreadyOwned ? "Obtenu" : `${item.price}$`;
+    
+        const priceText = scene.add.text(xPosition, barY + Math.round(30 * scaleFactor), priceOrObtained, {
             font: `${Math.round(16 * scaleFactor)}px customFont`,
             fill: theme.text
         }).setOrigin(0.5).setDepth(9);
         shopGroup.add(priceText);
-        const skinSize = layout.isMobile ? Math.round(GameState.unitSize*1.1) :  Math.round(GameState.unitSize*0.4);
+    
+        const skinSize = layout.isMobile ? Math.round(GameState.unitSize * 1.1) : Math.round(GameState.unitSize * 0.4);
         const skinIcon = scene.add.image(xPosition, barY - Math.round(10 * scaleFactor), item.skin)
             .setScale(0.6)
             .setDepth(9)
             .setInteractive()
             .setDisplaySize(skinSize, skinSize)
-            .on('pointerdown', () => purchaseItem(scene, item));
+            .on('pointerdown', () => {
+                if (!alreadyOwned) { 
+                    purchaseItem(scene, item);
+                } else {
+                    activateSkin(item.skin); 
+                    closeShopPopup();
+                }
+            });
         shopGroup.add(skinIcon);
     });
 
@@ -86,6 +98,8 @@ function purchaseItem(scene, item) {
     if (GameState.coins >= item.price) {
         GameState.coins -= item.price;
         GameState.coinsText.setText(`${GameState.coins}$`);
+        GameState.ownedSkins.push(item.skin);
+        GameState.save(); 
         activateSkin(item.skin);
         closeShopPopup();
     } else {

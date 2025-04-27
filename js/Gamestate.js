@@ -26,22 +26,79 @@ export const GameState = {
     gridCells: [],
     currentTheme: THEMES.dark,
    unitSkin : 'unit',
+   ownedSkins: ['unit'] ,
 
 
-    reset() {
-        this.grid = Array.from({ length: this.grid_size }, () => Array(this.grid_size).fill(null));
+   reset(newGame = false) {
+    this.grid = Array.from({ length: this.grid_size }, () => Array(this.grid_size).fill(null));
+    this.timeLeft = 200;
+    this.gameActive = true;
+    this.hiddenCoins = [];
+    this.levelUpCost = 30;
+    this.actualMaxLevel = 1;
+    this.timerStarted = false;
+    this.gridCells = [];
+    this.shopOpen = false;
+    this.shopGroup = null;
+
+    if (newGame) {
         this.coins = 500;
-        this.timeLeft = 200;
-        this.gameActive = true;
-        this.hiddenCoins = [];
-        this.levelUpCost = 30;
-        this.actualMaxLevel = 1;
-        this.timerStarted = false;
-        this.gridCells = [];
-        this.shopOpen = false;
-        this.shopGroup = null;
-    },
+        this.ownedSkins = ['unit'];
+        this.unitSkin = 'unit';
+    }
+}
+,
 
+save() {
+    const simpleGrid = this.grid.map(row =>
+        row.map(unit => {
+            if (!unit) return null;
+            return {
+                level: unit.level,
+                skin: unit.texture.key
+            };
+        })
+    );
+
+    const dataToSave = {
+        coins: this.coins,
+        ownedSkins: this.ownedSkins,
+        unitSkin: this.unitSkin,
+        simpleGrid: simpleGrid,
+        actualMaxLevel: this.actualMaxLevel,
+    };
+
+    localStorage.setItem('pawgressSave', JSON.stringify(dataToSave));
+},
+
+load() {
+    try {
+        const savedData = localStorage.getItem('pawgressSave');
+        if (!savedData) {
+            console.log("🔵 Aucun fichier de sauvegarde trouvé.");
+            return;
+        }
+
+        const parsedData = JSON.parse(savedData);
+
+        if (typeof parsedData !== 'object' || parsedData === null) {
+            console.warn("⚠️ Données de sauvegarde invalides, réinitialisation ignorée.");
+            return;
+        }
+
+        this.coins = parsedData.coins ?? 0;
+        this.ownedSkins = parsedData.ownedSkins ?? ['unit'];
+        this.unitSkin = parsedData.unitSkin ?? 'unit';
+        this.savedGrid = parsedData.simpleGrid ?? null; 
+        this.actualMaxLevel = parsedData.actualMaxLevel ?? 1;
+
+        console.log("✅ Données chargées depuis localStorage.");
+    } catch (error) {
+        console.error("❌ Erreur lors du chargement de la sauvegarde :", error);
+    }
+},
+
+    
     updateGridSize() {
         let oldSize = this.grid_size;
 

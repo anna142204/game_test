@@ -2,6 +2,7 @@
 import { GameState } from "./GameState.js";
 import { LAYOUT, THEMES } from "./constants.js";
 
+
 export function drawGrid(scene) {
     GameState.currentScene = scene;
 
@@ -45,3 +46,6 @@ export function isGridFull() {
 export function isValidGridPosition(row, col) {
     return row >= 0 && row < GameState.grid_size && col >= 0 && col < GameState.grid_size;
 }
+
+
+

@@ -1,6 +1,6 @@
 {
-  "name": "LevelCats",
-  "short_name": "LevelCats",
+  "name": "Pawgress",
+  "short_name": "Pawsgress",
   "description": "Un jeu de fusion et de stratégie",
   "start_url": "index.html",
   "display": "fullscreen",

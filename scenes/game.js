@@ -15,7 +15,7 @@ export class Game extends Phaser.Scene {
     create() {
         this.cameras.main.fadeIn(300, 0, 0, 0);
         
-        GameState.reset();
+        GameState.reset(true);
         GameState.currentScene = this;
         this.cameras.main.setBackgroundColor(GameState.currentTheme.background);
         
