@@ -117,11 +117,11 @@ function createPurchaseButton(scene, centerX, buttonY, scaleFactor, theme) {
             if (GameState.gameActive) {
                 scene.tweens.add({
                     targets: addUnitButton,
-                    scaleX: 0.95,
-                    scaleY: 0.95,
+                    scaleX: 0.95 * scaleFactor,
+                    scaleY: 0.95 * scaleFactor,
                     duration: 80,
                     yoyo: true,
-                    ease: 'Sine.easeInOut',
+                    ease: 'sine.inOut',
                     onComplete: () => purchaseUnit(scene)
                 });
             }

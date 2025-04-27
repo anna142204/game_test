@@ -41,7 +41,6 @@ export class BootScene extends Phaser.Scene {
     }
 
     create() {
-        // Une fois les ressources chargées, passez à l'écran de démarrage
         this.scene.start('Start');
     }
 }
